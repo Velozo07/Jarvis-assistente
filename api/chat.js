@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   }
 
   const { prompt } = req.body;
-  
+
   // A chave é lida da configuração do servidor, não exposta no código
   const apiKey = process.env.GEMINI_API_KEY;
 
@@ -17,9 +17,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey });
+    const ai = new GoogleGenAI();
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash', // Corrigido para uma versão estável
+      model: 'gemini-1.5-flash',
       contents: prompt,
     });
 
