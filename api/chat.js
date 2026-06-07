@@ -1,5 +1,4 @@
-// Arquivo: api/chat.js
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -7,8 +6,6 @@ export default async function handler(req, res) {
   }
 
   const { prompt } = req.body;
-
-  // A chave é lida da configuração do servidor
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
@@ -16,13 +13,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey });
-    const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
-      contents: prompt,
-    });
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
 
-    return res.status(200).json({ text: response.text });
+    return res.status(200).json({ text: text });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
