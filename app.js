@@ -1,5 +1,5 @@
 // Chave da API integrada
-const API_KEY = "AQ.Ab8RN6JLq-dAIZMvIfqmlmVnUawJfIC3DY0HrFYjXt2NiehgxQ"; 
+const API_KEY = ""; 
 const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
 
 const statusTxt = document.getElementById('status');
