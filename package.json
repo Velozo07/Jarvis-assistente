@@ -1,0 +1,12 @@
+{
+  "name": "jarvis-assistente",
+  "version": "1.0.0",
+  "description": "Assistente virtual usando o SDK do Google",
+  "main": "app.js",
+  "dependencies": {
+    "@google/genai": "^0.1.2"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
