@@ -5,12 +5,12 @@ const jarvisCore = document.getElementById('jarvis-core');
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognition = new SpeechRecognition();
-
 recognition.lang = 'pt-BR';
 recognition.continuous = true;
 recognition.interimResults = false;
 
-const synth = window.SpeechSynthesis;
+// ✅ 's' minúsculo — era o bug de voz
+const synth = window.speechSynthesis;
 
 function falar(texto) {
     synth.cancel();
@@ -20,14 +20,12 @@ function falar(texto) {
     synth.speak(utterance);
 }
 
-// Inicia o sistema de escuta contínua
 recognition.start();
 statusTxt.innerText = "Aguardando comando: 'E aí Jarvis'...";
 
 recognition.onresult = async (event) => {
     const resultIndex = event.resultIndex;
     const comando = event.results[resultIndex][0].transcript.toLowerCase().trim();
-
     transcricaoTxt.innerText = `Você disse: "${comando}"`;
 
     if (comando.includes("parar") || comando.includes("silêncio")) {
@@ -37,7 +35,9 @@ recognition.onresult = async (event) => {
     }
 
     if (comando.includes("e aí jarvis") || comando.includes("ei jarvis") || comando.includes("jarvis")) {
-        const perguntaReal = comando.replace(/e aí jarvis|ei jarvis|jarvis/g, '').trim();
+        const perguntaReal = comando
+            .replace(/e aí jarvis|ei jarvis|jarvis/g, '')
+            .trim();
 
         if (!perguntaReal) {
             jarvisCore.classList.add('listening');
@@ -63,28 +63,27 @@ async function processarComandoGemini(pergunta) {
     const contextoTempo = `Contexto: Hoje é dia ${agora.toLocaleDateString('pt-BR')} e agora são ${agora.toLocaleTimeString('pt-BR')}. Você é o Jarvis, um assistente virtual ultra rápido e natural.`;
 
     try {
-        const response = await fetch(GEMINI_URL, {
+        // ✅ Agora chama o backend /api/chat corretamente
+        const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: `${contextoTempo} ${pergunta}`
-                    }]
-                }]
+                prompt: `${contextoTempo} ${pergunta}`
             })
         });
 
         const data = await response.json();
-        const textoResposta = data.candidates[0].content.parts[0].text.replace(/\*/g, '');
 
+        if (data.error) throw new Error(data.error);
+
+        const textoResposta = data.text.replace(/\*/g, '');
         statusTxt.innerText = "Respondendo...";
         respostaTxt.innerText = textoResposta;
         falar(textoResposta);
 
     } catch (error) {
-        console.error(error);
-        respostaTxt.innerText = "Erro ao conectar com o cérebro do Jarvis.";
+        console.error('Erro Jarvis:', error);
+        respostaTxt.innerText = `Erro: ${error.message}`;
         falar("Desculpe, tive um problema de conexão.");
     } finally {
         jarvisCore.classList.remove('listening');
@@ -92,5 +91,5 @@ async function processarComandoGemini(pergunta) {
             statusTxt.innerText = "Aguardando comando: 'E aí Jarvis'...";
         }, 1000);
     }
-                                    }
+}                  }
                    
